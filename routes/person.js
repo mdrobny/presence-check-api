@@ -41,12 +41,12 @@ exports.post = function (req, res) {
             res.send(201, element);
         });
     }.bind(this);
-    /** Check if exists **/
-    Person.findOne({id: element.id}, function (err, obj) {
+    /** Update if exists **/
+    Person.findOne({id: element.id}, function (err, elem) {
         if(err) {
             res.send(apiProblem.msg(500, 'Database operation error'));
         }
-        if(obj) {
+        if(elem) {
             res.send(apiProblem.msg(304, 'Object exists'));
         } else {
             save();
@@ -78,4 +78,28 @@ exports.delete = function (req, res) {
         }
         
     });
+}
+/**
+ * PUT
+ */
+exports.update = function (req, res) {
+    var element, data, id;
+    id = req.params.id || 0;
+    data = req.body;
+    element = {
+        "name": data.name,
+        "voice": data.voice
+    };
+    Person.update({id: id}, element, function (err, numberAffected) {
+        if(err) {
+            res.send(apiProblem.msg(500, 'Database operation error'));
+        }
+        if(numberAffected === 1) {
+            res.send(201, element);
+        } else {
+            res.send(apiProblem.msg(304, 'Object does not exists'));
+        }
+
+    });
+    
 }

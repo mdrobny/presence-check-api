@@ -42,6 +42,7 @@ db.once('open', function callback () {
     console.log('connected to db');
     app.get('/api/person', person.get);
     app.post('/api/person', person.post);
+    app.put('/api/person/:id', person.update);
     app.delete('/api/person/:id', person.delete);
 }.bind(this));
 
