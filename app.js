@@ -1,4 +1,3 @@
-
 /**
  * Module dependencies.
  */
@@ -8,7 +7,7 @@ var routes = require('./routes');
 var http = require('http');
 var path = require('path');
 
-var person = require('./routes/person');
+var people = require('./routes/people');
 
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/pcheck');
@@ -40,10 +39,12 @@ app.get('/', function (req, res) {
 });
 db.once('open', function callback () {
     console.log('connected to db');
-    app.get('/api/person', person.get);
-    app.post('/api/person', person.post);
-    app.put('/api/person/:id', person.update);
-    app.delete('/api/person/:id', person.delete);
+    
+    /** PEOPLE URLs **/
+    app.get('/api/people/:id', people.get);
+    app.post('/api/people', people.post);
+    app.put('/api/people/:id', people.update);
+    app.delete('/api/people/:id', people.delete);
 }.bind(this));
 
 

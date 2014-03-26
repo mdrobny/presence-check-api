@@ -3,23 +3,23 @@ var Schema = mongoose.Schema;
 
 var apiProblem = require('../api-problem');
 
-var PersonSchema = new Schema({
+var PeopleSchema = new Schema({
     id: {type: Number, require: true},
     name: {type: String, required: true},
     voice: {type: Number, required: true}
+}, {
+    collection: "people"
 });
-var Person = mongoose.model('person', PersonSchema, 'person');
+var People = mongoose.model('people', PeopleSchema);
 /**
  * GET
  */
 exports.get = function (req, res) {
-    return Person.find(function (err, data) {
+    return People.find(function (err, data) {
         if(err) {
-            console.log('get err');
-        } else {
-            console.log('found');
-            return res.send(data);
+            return res.send(apiProblem.msg(500, 'db'));
         }
+        res.send(data);
     });
 }
 /**
@@ -28,7 +28,7 @@ exports.get = function (req, res) {
 exports.post = function (req, res) {
     var element, data, save;
     data = req.body;
-    element = new Person({
+    element = new People({
         "id": data.id,
         "name": data.name,
         "voice": data.voice
@@ -36,18 +36,18 @@ exports.post = function (req, res) {
     save = function () {
         element.save(function (err) {
             if(err) {
-                res.send(apiProblem.msg(500, 'Database operation error'));
+                res.send(apiProblem.msg(500, 'db'));
             }
             res.send(201, element);
         });
     }.bind(this);
-    /** Update if exists **/
-    Person.findOne({id: element.id}, function (err, elem) {
+    /** Response with error if exists **/
+    People.findOne({id: element.id}, function (err, elem) {
         if(err) {
-            res.send(apiProblem.msg(500, 'Database operation error'));
+            return res.send(apiProblem.msg(500, 'db'));
         }
         if(elem) {
-            res.send(apiProblem.msg(304, 'Object exists'));
+            res.send(apiProblem.msg(304, 'Document exists'));
         } else {
             save();
         }
@@ -62,21 +62,20 @@ exports.delete = function (req, res) {
     remove = function(element) {
         element.remove(function (err) {
             if(err) {
-                res.send(apiProblem.msg(500, 'Database operation error'));
+                return res.send(apiProblem.msg(500, 'db'));
             }
-            res.send(204, {"message": 'Element with id: '+ id +' removed'});
+            res.send(204);
         });
     }
-    Person.findOne({id: id}, function (err, element) {
+    People.findOne({id: id}, function (err, element) {
         if(err) {
-            res.send(apiProblem.msg(500, 'Database operation error'));
+            return res.send(apiProblem.msg(500, 'db'));
         }
         if(element) {
             remove(element);
         } else {
             res.send(apiProblem.msg(304, 'Object does not exists'));
         }
-        
     });
 }
 /**
@@ -90,9 +89,9 @@ exports.update = function (req, res) {
         "name": data.name,
         "voice": data.voice
     };
-    Person.update({id: id}, element, function (err, numberAffected) {
+    People.update({id: id}, element, function (err, numberAffected) {
         if(err) {
-            res.send(apiProblem.msg(500, 'Database operation error'));
+            return res.send(apiProblem.msg(500, 'db'));
         }
         if(numberAffected === 1) {
             res.send(201, element);
