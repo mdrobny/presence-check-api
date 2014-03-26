@@ -13,14 +13,48 @@ var PeopleSchema = new Schema({
 var People = mongoose.model('people', PeopleSchema);
 /**
  * GET
+ * If id passed get only one
+ * If not get whole collection
+ * 
+ * id = null
+ * offset = 0
+ * limit = 0
+ * sort
  */
 exports.get = function (req, res) {
-    return People.find(function (err, data) {
-        if(err) {
-            return res.send(apiProblem.msg(500, 'db'));
+    var id, offset = 0, limit = 5, sort = 'id', sortType = 1,
+        query, sortParams;
+    id = req.params.id || null;
+    
+    if(id) {
+        People.findOne({id: id}, function(err, data) {
+            if(err) {
+                return res.send(apiProblem.msg(500, 'db'))
+            }
+            if(data) {
+                res.send(data);
+            } else {
+                res.send(apiProblem.msg(304, 'Object does not exists'));
+            }
+        });
+    } else {
+        offset = req.query.offset || offset;
+        limit = req.query.limit || limit;
+        sort = req.query.sort || sort;
+        if(sort.charAt(0) === '-') {
+            sortType = -1;
+            sort = sort.substring(1);
         }
-        res.send(data);
-    });
+        sortParams = {};
+        sortParams[sort] = sortType;
+        query = People.find().skip(offset).limit(limit).sort(sortParams);
+        query.exec(function (err, data) {
+            if(err) {
+                return res.send(apiProblem.msg(500, 'db'));
+            }
+            res.send(data);
+        });
+    }
 }
 /**
  * POST
@@ -47,7 +81,7 @@ exports.post = function (req, res) {
             return res.send(apiProblem.msg(500, 'db'));
         }
         if(elem) {
-            res.send(apiProblem.msg(304, 'Document exists'));
+            res.send(apiProblem.msg(304, 'Object exists'));
         } else {
             save();
         }

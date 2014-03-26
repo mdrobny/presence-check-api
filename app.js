@@ -41,6 +41,7 @@ db.once('open', function callback () {
     console.log('connected to db');
     
     /** PEOPLE URLs **/
+    app.get('/api/people', people.get);
     app.get('/api/people/:id', people.get);
     app.post('/api/people', people.post);
     app.put('/api/people/:id', people.update);
