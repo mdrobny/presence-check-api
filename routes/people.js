@@ -19,7 +19,7 @@ var People = mongoose.model('people', PeopleSchema);
  * id = null
  * offset = 0
  * limit = 0
- * sort
+ * sort (id,name,voice)
  */
 exports.get = function (req, res) {
     var id, offset = 0, limit = 5, sort = 'id', sortType = 1,
